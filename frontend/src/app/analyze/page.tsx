@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 import { analyzeJob } from "@/lib/api";
@@ -102,24 +103,38 @@ export default function AnalyzePage() {
     <main className="min-h-screen bg-slate-950 px-5 py-12 text-slate-100">
       <div className="mx-auto max-w-6xl">
         <header className="mb-10">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">
-            CareerLens AI
-          </p>
+            <nav className="mb-10 flex items-center justify-between gap-4">
+                <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-cyan-300"
+                >
+                    <span aria-hidden="true">←</span>
+                    Back to home
+                </Link>
 
-          <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            Understand what a job posting actually requires.
-          </h1>
+                <span className="text-sm font-bold tracking-tight text-white">
+                    CareerLens <span className="text-cyan-400">AI</span>
+                </span>
+            </nav>
 
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
-            Paste a complete job description and let the AI extract its
-            requirements, responsibilities, and important keywords.
-          </p>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">
+                AI job analyzer
+            </p>
+
+            <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+                Understand what a job posting actually requires.
+            </h1>
+
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
+                Paste a complete job description and let the AI extract its
+                requirements, responsibilities, and important keywords.
+            </p>
         </header>
 
         <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <form
             onSubmit={handleSubmit}
-            className="h-fit rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl shadow-cyan-950/20"
+            className="h-fit rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl shadow-cyan-950/20 lg:sticky lg:top-8"
           >
             <div className="flex items-center justify-between gap-4">
               <label
