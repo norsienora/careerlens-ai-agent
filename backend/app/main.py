@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from app.gemini_service import extract_job_requirements
+from app.resume_analysis_service import analyze_resume_text
 from app.pdf_service import (
     MAX_PDF_SIZE_BYTES,
     PdfTextExtractionError,
@@ -16,6 +17,7 @@ from app.pdf_service import (
 from app.schemas import (
     JobAnalysisRequest,
     JobAnalysisResponse,
+    ResumeAnalysisResponse,
     ResumeTextResponse,
 )
 
@@ -133,3 +135,38 @@ async def extract_resume_text(
         ) from error
     finally:
         await file.close()
+
+@app.post(
+    "/api/v1/resumes/analyze",
+    response_model=ResumeAnalysisResponse,
+    tags=["resumes"],
+)
+async def analyze_resume(
+    file: Annotated[
+        UploadFile,
+        File(
+            description=(
+                "A text-based PDF resume that will be analyzed "
+                "using Gemini."
+            ),
+        ),
+    ],
+) -> ResumeAnalysisResponse:
+    extracted_resume = await extract_resume_text(file)
+
+    try:
+        return await analyze_resume_text(extracted_resume.text)
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+    except Exception as error:
+        logger.exception("Resume analysis failed")
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Analisis CV gagal. Silakan coba lagi dan "
+                "periksa log backend."
+            ),
+        ) from error
