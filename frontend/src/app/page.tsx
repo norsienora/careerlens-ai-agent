@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type HealthResponse = {
@@ -43,46 +44,173 @@ export default function Home() {
   const isConnected = health?.status === "ok";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-20">
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">
-          Full-stack Generative AI Application
-        </p>
+    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl"
+      />
 
-        <h1 className="text-5xl font-bold tracking-tight sm:text-7xl">
-          CareerLens AI
-        </h1>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-violet-500/10 blur-3xl"
+      />
 
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          An evidence-grounded AI agent that analyzes resumes, job
-          requirements, and GitHub projects without inventing experience.
-        </p>
+      <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8 sm:px-8">
+        <nav className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-lg font-bold tracking-tight text-white"
+          >
+            CareerLens
+            <span className="text-cyan-400"> AI</span>
+          </Link>
 
-        <div className="mt-10 max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm font-medium text-slate-400">
-            Backend connection
-          </p>
+          <Link
+            href="/analyze"
+            className="rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-400 hover:text-cyan-300"
+          >
+            Analyze a job
+          </Link>
+        </nav>
 
-          <div className="mt-3 flex items-center gap-3">
-            <span
-              className={`h-3 w-3 rounded-full ${
-                isConnected
-                  ? "bg-emerald-400"
-                  : error
-                    ? "bg-red-400"
-                    : "animate-pulse bg-amber-400"
-              }`}
-            />
-
-            <p className="font-medium">
-              {isConnected
-                ? `Connected to ${health.service}`
-                : error
-                  ? `Connection failed: ${error}`
-                  : "Checking backend..."}
+        <div className="grid flex-1 items-center gap-14 py-16 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">
+              Full-stack Generative AI Application
             </p>
+
+            <h1 className="max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">
+              Turn job postings into
+              <span className="text-cyan-300"> actionable evidence.</span>
+            </h1>
+
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">
+              CareerLens AI extracts job requirements, separates must-have
+              qualifications from preferences, and shows the source evidence
+              behind every result.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+              <Link
+                href="/analyze"
+                className="inline-flex items-center justify-center gap-3 rounded-2xl bg-cyan-400 px-6 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
+              >
+                Start analyzing
+                <span aria-hidden="true">→</span>
+              </Link>
+
+              <a
+                href="#system-status"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-700 px-6 py-3.5 font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-900"
+              >
+                View system status
+              </a>
+            </div>
+
+            <div className="mt-12 grid max-w-2xl gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <p className="font-semibold text-white">
+                  Structured extraction
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-400">
+                  Consistent, typed AI output
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <p className="font-semibold text-white">
+                  Evidence grounded
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-400">
+                  Every requirement cites its source
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <p className="font-semibold text-white">
+                  Priority detection
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-400">
+                  Must-have versus nice-to-have
+                </p>
+              </div>
+            </div>
           </div>
+
+          <aside
+            id="system-status"
+            className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-cyan-950/20 backdrop-blur"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-400">
+                  CareerLens system
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold text-white">
+                  AI analysis pipeline
+                </h2>
+              </div>
+
+              <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                MVP
+              </span>
+            </div>
+
+            <div className="mt-7 space-y-4">
+              {[
+                "Job requirement extraction",
+                "Source evidence detection",
+                "Priority classification",
+                "Structured Gemini output",
+              ].map((feature) => (
+                <div
+                  key={feature}
+                  className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-400/10 text-sm text-emerald-300">
+                    ✓
+                  </span>
+                  <span className="text-sm font-medium text-slate-200">
+                    {feature}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div
+              aria-live="polite"
+              className="mt-7 rounded-2xl border border-slate-800 bg-slate-950 p-5"
+            >
+              <p className="text-sm font-medium text-slate-400">
+                Backend connection
+              </p>
+
+              <div className="mt-3 flex items-center gap-3">
+                <span
+                  className={`h-3 w-3 rounded-full ${
+                    isConnected
+                      ? "bg-emerald-400"
+                      : error
+                        ? "bg-red-400"
+                        : "animate-pulse bg-amber-400"
+                  }`}
+                />
+
+                <p className="text-sm font-medium">
+                  {isConnected
+                    ? `Connected to ${health?.service ?? "backend"}`
+                    : error
+                      ? `Connection failed: ${error}`
+                      : "Checking backend..."}
+                </p>
+              </div>
+            </div>
+          </aside>
         </div>
+
+        <footer className="border-t border-slate-900 py-5 text-sm text-slate-500">
+          Built with Next.js, FastAPI, and Gemini.
+        </footer>
       </section>
     </main>
   );
