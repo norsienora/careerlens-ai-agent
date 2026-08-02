@@ -45,3 +45,10 @@ class JobAnalysisResponse(BaseModel):
     requirements: list[JobRequirement]
     responsibilities: list[str]
     keywords: list[str]
+
+class ResumeTextResponse(BaseModel):
+    filename: str
+    page_count: int = Field(ge=1)
+    character_count: int = Field(ge=1)
+    word_count: int = Field(ge=1)
+    text: str = Field(min_length=1)
