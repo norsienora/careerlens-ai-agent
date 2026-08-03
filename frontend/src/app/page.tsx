@@ -12,6 +12,7 @@ const pipelineFeatures = [
   "Job requirement extraction",
   "Resume PDF text extraction",
   "Evidence-grounded resume analysis",
+  "Job–resume match assessment",
   "Structured Gemini output",
 ];
 
@@ -22,19 +23,26 @@ export default function Home() {
   useEffect(() => {
     async function checkBackend() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(
+          /\/+$/,
+          "",
+        );
 
         if (!apiUrl) {
-          throw new Error("NEXT_PUBLIC_API_URL belum dikonfigurasi.");
+          throw new Error(
+            "NEXT_PUBLIC_API_URL belum dikonfigurasi.",
+          );
         }
 
         const response = await fetch(`${apiUrl}/health`);
 
         if (!response.ok) {
-          throw new Error(`Backend mengembalikan HTTP ${response.status}.`);
+          throw new Error(
+            `Backend mengembalikan HTTP ${response.status}.`,
+          );
         }
 
-        const data: HealthResponse = await response.json();
+        const data = (await response.json()) as HealthResponse;
 
         setHealth(data);
         setError(null);
@@ -84,16 +92,19 @@ export default function Home() {
 
             <h1 className="max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">
               Turn career documents into
-              <span className="text-cyan-300"> actionable evidence.</span>
+              <span className="text-cyan-300">
+                {" "}
+                actionable evidence.
+              </span>
             </h1>
 
             <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">
-              CareerLens AI analyzes job postings and resumes, extracts
-              structured facts, and shows the source evidence behind every
-              result without inventing experience.
+              CareerLens AI analyzes job postings and resumes,
+              extracts structured facts, and measures their
+              alignment without inventing experience.
             </p>
 
-            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <Link
                 href="/analyze"
                 className="inline-flex items-center justify-center gap-3 rounded-2xl bg-cyan-400 px-6 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
@@ -109,11 +120,21 @@ export default function Home() {
                 Analyze a resume
                 <span aria-hidden="true">→</span>
               </Link>
+
+              <Link
+                href="/match"
+                className="inline-flex items-center justify-center gap-3 rounded-2xl border border-violet-500/60 px-6 py-3.5 font-semibold text-violet-200 transition hover:border-violet-400 hover:bg-violet-500/10 hover:text-violet-100"
+              >
+                Match job &amp; resume
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
 
             <div className="mt-12 grid max-w-2xl gap-4 sm:grid-cols-3">
               <article className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-                <h2 className="font-semibold text-white">Job intelligence</h2>
+                <h2 className="font-semibold text-white">
+                  Job intelligence
+                </h2>
 
                 <p className="mt-1 text-sm leading-6 text-slate-400">
                   Requirements and priority detection
@@ -126,17 +147,17 @@ export default function Home() {
                 </h2>
 
                 <p className="mt-1 text-sm leading-6 text-slate-400">
-                  Structured facts supported by evidence
+                  Structured facts from resume content
                 </p>
               </article>
 
               <article className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
                 <h2 className="font-semibold text-white">
-                  Privacy conscious
+                  Match intelligence
                 </h2>
 
                 <p className="mt-1 text-sm leading-6 text-slate-400">
-                  Uploaded PDF files are not stored
+                  Strengths, gaps, and recommendations
                 </p>
               </article>
             </div>
@@ -197,7 +218,9 @@ export default function Home() {
 
                 <p className="break-words text-sm font-medium">
                   {isConnected
-                    ? `Connected to ${health?.service ?? "backend"}`
+                    ? `Connected to ${
+                        health?.service ?? "backend"
+                      }`
                     : error
                       ? `Connection failed: ${error}`
                       : "Checking backend..."}

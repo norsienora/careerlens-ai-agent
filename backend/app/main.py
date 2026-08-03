@@ -2,21 +2,23 @@ import logging
 from pathlib import PurePosixPath
 from typing import Annotated
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from app.gemini_service import extract_job_requirements
-from app.resume_analysis_service import analyze_resume_text
+from app.match_service import assess_job_resume_match
 from app.pdf_service import (
     MAX_PDF_SIZE_BYTES,
     PdfTextExtractionError,
     PdfValidationError,
     extract_text_from_pdf,
 )
+from app.resume_analysis_service import analyze_resume_text
 from app.schemas import (
     JobAnalysisRequest,
     JobAnalysisResponse,
+    JobResumeMatchResponse,
     ResumeAnalysisResponse,
     ResumeTextResponse,
 )
@@ -57,9 +59,14 @@ async def analyze_job(
     payload: JobAnalysisRequest,
 ) -> JobAnalysisResponse:
     try:
-        return await extract_job_requirements(payload.job_description)
+        return await extract_job_requirements(
+            payload.job_description,
+        )
     except RuntimeError as error:
-        raise HTTPException(status_code=503, detail=str(error)) from error
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
     except Exception as error:
         logger.exception("Job analysis failed")
         raise HTTPException(
@@ -76,7 +83,9 @@ async def analyze_job(
 async def extract_resume_text(
     file: Annotated[
         UploadFile,
-        File(description="A text-based PDF resume, maximum 5 MB."),
+        File(
+            description="A text-based PDF resume, maximum 5 MB.",
+        ),
     ],
 ) -> ResumeTextResponse:
     raw_filename = file.filename or "resume.pdf"
@@ -136,6 +145,7 @@ async def extract_resume_text(
     finally:
         await file.close()
 
+
 @app.post(
     "/api/v1/resumes/analyze",
     response_model=ResumeAnalysisResponse,
@@ -155,7 +165,9 @@ async def analyze_resume(
     extracted_resume = await extract_resume_text(file)
 
     try:
-        return await analyze_resume_text(extracted_resume.text)
+        return await analyze_resume_text(
+            extracted_resume.text,
+        )
     except RuntimeError as error:
         raise HTTPException(
             status_code=503,
@@ -168,5 +180,69 @@ async def analyze_resume(
             detail=(
                 "Analisis CV gagal. Silakan coba lagi dan "
                 "periksa log backend."
+            ),
+        ) from error
+
+
+@app.post(
+    "/api/v1/matches/analyze",
+    response_model=JobResumeMatchResponse,
+    tags=["matches"],
+)
+async def analyze_job_resume_match(
+    job_description: Annotated[
+        str,
+        Form(
+            min_length=100,
+            max_length=30_000,
+            description=(
+                "Complete job description that will be compared "
+                "with the resume."
+            ),
+        ),
+    ],
+    file: Annotated[
+        UploadFile,
+        File(
+            description=(
+                "A text-based PDF resume that will be compared "
+                "with the job description."
+            ),
+        ),
+    ],
+) -> JobResumeMatchResponse:
+    extracted_resume = await extract_resume_text(file)
+
+    try:
+        job_analysis = await extract_job_requirements(
+            job_description,
+        )
+
+        resume_analysis = await analyze_resume_text(
+            extracted_resume.text,
+        )
+
+        assessment = await assess_job_resume_match(
+            job=job_analysis,
+            resume=resume_analysis,
+        )
+
+        return JobResumeMatchResponse(
+            job=job_analysis,
+            resume=resume_analysis,
+            assessment=assessment,
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+    except Exception as error:
+        logger.exception("Job-resume matching failed")
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Pencocokan pekerjaan dan CV gagal. "
+                "Silakan coba lagi dan periksa log backend."
             ),
         ) from error

@@ -46,12 +46,14 @@ class JobAnalysisResponse(BaseModel):
     responsibilities: list[str]
     keywords: list[str]
 
+
 class ResumeTextResponse(BaseModel):
     filename: str
     page_count: int = Field(ge=1)
     character_count: int = Field(ge=1)
     word_count: int = Field(ge=1)
     text: str = Field(min_length=1)
+
 
 class ResumeSkill(BaseModel):
     name: str = Field(
@@ -121,3 +123,73 @@ class ResumeAnalysisResponse(BaseModel):
     projects: list[ResumeProject]
     certifications: list[ResumeEvidenceItem]
     languages: list[ResumeEvidenceItem]
+
+
+class RequirementMatch(BaseModel):
+    requirement_name: str = Field(
+        description="Name of the job requirement being evaluated.",
+    )
+    category: Literal[
+        "technical",
+        "soft_skill",
+        "education",
+        "experience",
+        "language",
+        "other",
+    ]
+    priority: Literal["must_have", "nice_to_have"]
+    status: Literal["matched", "partial", "missing"]
+    match_score: int = Field(
+        ge=0,
+        le=100,
+        description=(
+            "Degree to which resume evidence supports this requirement. "
+            "This is not a hiring probability."
+        ),
+    )
+    explanation: str = Field(
+        description=(
+            "Concise explanation of why the requirement is matched, "
+            "partially matched, or missing."
+        ),
+    )
+    resume_evidence: list[str] = Field(
+        description=(
+            "Exact supporting phrases from the resume. "
+            "Use an empty list when no supporting evidence exists."
+        ),
+    )
+
+
+class JobResumeMatchAssessment(BaseModel):
+    overall_score: int = Field(
+        ge=0,
+        le=100,
+        description=(
+            "Overall alignment between the resume and job requirements. "
+            "This score is not a hiring probability."
+        ),
+    )
+    fit_level: Literal["strong", "moderate", "limited"]
+    summary: str = Field(
+        description="Concise evidence-grounded summary of the overall match.",
+    )
+    requirement_matches: list[RequirementMatch]
+    strengths: list[str] = Field(
+        description="Most relevant strengths supported by the resume.",
+    )
+    gaps: list[str] = Field(
+        description="Important job requirements with insufficient evidence.",
+    )
+    recommendations: list[str] = Field(
+        description=(
+            "Practical recommendations based only on the supplied "
+            "job description and resume."
+        ),
+    )
+
+
+class JobResumeMatchResponse(BaseModel):
+    job: JobAnalysisResponse
+    resume: ResumeAnalysisResponse
+    assessment: JobResumeMatchAssessment
