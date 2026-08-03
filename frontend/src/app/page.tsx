@@ -8,6 +8,13 @@ type HealthResponse = {
   service: string;
 };
 
+const pipelineFeatures = [
+  "Job requirement extraction",
+  "Resume PDF text extraction",
+  "Evidence-grounded resume analysis",
+  "Structured Gemini output",
+];
+
 export default function Home() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +35,11 @@ export default function Home() {
         }
 
         const data: HealthResponse = await response.json();
+
         setHealth(data);
+        setError(null);
       } catch (caughtError) {
+        setHealth(null);
         setError(
           caughtError instanceof Error
             ? caughtError.message
@@ -56,20 +66,13 @@ export default function Home() {
       />
 
       <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8 sm:px-8">
-        <nav className="flex items-center justify-between">
+        <nav className="flex items-center">
           <Link
             href="/"
             className="text-lg font-bold tracking-tight text-white"
           >
             CareerLens
             <span className="text-cyan-400"> AI</span>
-          </Link>
-
-          <Link
-            href="/analyze"
-            className="rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-400 hover:text-cyan-300"
-          >
-            Analyze a job
           </Link>
         </nav>
 
@@ -80,14 +83,14 @@ export default function Home() {
             </p>
 
             <h1 className="max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">
-              Turn job postings into
+              Turn career documents into
               <span className="text-cyan-300"> actionable evidence.</span>
             </h1>
 
             <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">
-              CareerLens AI extracts job requirements, separates must-have
-              qualifications from preferences, and shows the source evidence
-              behind every result.
+              CareerLens AI analyzes job postings and resumes, extracts
+              structured facts, and shows the source evidence behind every
+              result without inventing experience.
             </p>
 
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
@@ -95,81 +98,77 @@ export default function Home() {
                 href="/analyze"
                 className="inline-flex items-center justify-center gap-3 rounded-2xl bg-cyan-400 px-6 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Start analyzing
+                Analyze a job
                 <span aria-hidden="true">→</span>
               </Link>
 
-              <a
-                href="#system-status"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-700 px-6 py-3.5 font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-900"
+              <Link
+                href="/resume"
+                className="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-700 px-6 py-3.5 font-semibold text-slate-200 transition hover:border-cyan-400 hover:bg-slate-900 hover:text-cyan-300"
               >
-                View system status
-              </a>
+                Analyze a resume
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
 
             <div className="mt-12 grid max-w-2xl gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-                <p className="font-semibold text-white">
-                  Structured extraction
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-400">
-                  Consistent, typed AI output
-                </p>
-              </div>
+              <article className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <h2 className="font-semibold text-white">Job intelligence</h2>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-                <p className="font-semibold text-white">
-                  Evidence grounded
-                </p>
                 <p className="mt-1 text-sm leading-6 text-slate-400">
-                  Every requirement cites its source
+                  Requirements and priority detection
                 </p>
-              </div>
+              </article>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-                <p className="font-semibold text-white">
-                  Priority detection
-                </p>
+              <article className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <h2 className="font-semibold text-white">
+                  Resume intelligence
+                </h2>
+
                 <p className="mt-1 text-sm leading-6 text-slate-400">
-                  Must-have versus nice-to-have
+                  Structured facts supported by evidence
                 </p>
-              </div>
+              </article>
+
+              <article className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+                <h2 className="font-semibold text-white">
+                  Privacy conscious
+                </h2>
+
+                <p className="mt-1 text-sm leading-6 text-slate-400">
+                  Uploaded PDF files are not stored
+                </p>
+              </article>
             </div>
           </div>
 
-          <aside
-            id="system-status"
-            className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-cyan-950/20 backdrop-blur"
-          >
-            <div className="flex items-center justify-between">
+          <aside className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-cyan-950/20 backdrop-blur">
+            <div className="flex items-center justify-between gap-5">
               <div>
                 <p className="text-sm font-medium text-slate-400">
                   CareerLens system
                 </p>
+
                 <h2 className="mt-1 text-2xl font-semibold text-white">
-                  AI analysis pipeline
+                  AI career analysis pipeline
                 </h2>
               </div>
 
-              <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+              <span className="shrink-0 rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">
                 MVP
               </span>
             </div>
 
             <div className="mt-7 space-y-4">
-              {[
-                "Job requirement extraction",
-                "Source evidence detection",
-                "Priority classification",
-                "Structured Gemini output",
-              ].map((feature) => (
+              {pipelineFeatures.map((feature) => (
                 <div
                   key={feature}
                   className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-400/10 text-sm text-emerald-300">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-sm text-emerald-300">
                     ✓
                   </span>
+
                   <span className="text-sm font-medium text-slate-200">
                     {feature}
                   </span>
@@ -187,7 +186,7 @@ export default function Home() {
 
               <div className="mt-3 flex items-center gap-3">
                 <span
-                  className={`h-3 w-3 rounded-full ${
+                  className={`h-3 w-3 shrink-0 rounded-full ${
                     isConnected
                       ? "bg-emerald-400"
                       : error
@@ -196,7 +195,7 @@ export default function Home() {
                   }`}
                 />
 
-                <p className="text-sm font-medium">
+                <p className="break-words text-sm font-medium">
                   {isConnected
                     ? `Connected to ${health?.service ?? "backend"}`
                     : error
